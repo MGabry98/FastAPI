@@ -1,10 +1,7 @@
 import sys
 import threading
-import time
-
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi import FastAPI, Request, status
-import urllib
 
 from pydantic import BaseModel
 import cv2
@@ -44,8 +41,8 @@ def set_camera(ip):
     global Reading
     global change
     global new_frames
-    new_frames.clear()
-    camera.release()
+
+
     Reading = False
     change = True
     camera = cv2.VideoCapture(ip)
@@ -91,7 +88,6 @@ async def root():
     try:
         import io
         from starlette.responses import StreamingResponse
-        # print('frames', new_frames[0])
         cv2img = new_frames[len(new_frames) - 1]
         print(sys.getsizeof(new_frames))
         res, im_png = cv2.imencode(".png", cv2img)
@@ -117,7 +113,23 @@ async def demo_get_path_id(path_id: str):
     ipcam = path_id
     set_camera(ipcam)
     try:
+        import io
+        from starlette.responses import StreamingResponse
+        cv2img = new_frames[len(new_frames) - 1]
         print(sys.getsizeof(new_frames))
-        return RedirectResponse('/')
+        res, im_png = cv2.imencode(".png", cv2img)
+        return StreamingResponse(io.BytesIO(im_png.tobytes()), media_type="image/png")
+        # return RedirectResponse('/')
     except:
-        return {'No Redirect'}
+        import numpy as np
+        cv2img = np.zeros([512,512,1],dtype=np.uint8)
+        cv2img.fill(255)
+        res, im_png = cv2.imencode(".png", cv2img)
+        return StreamingResponse(io.BytesIO(im_png.tobytes()), media_type="image/png")
+
+import uvicorn
+def start_app():
+    uvicorn.run(app , port="8000")
+if __name__ == "__main__":
+    TM = threading.Thread(target=start_app())
+    TM.start()
