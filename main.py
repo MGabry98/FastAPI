@@ -151,7 +151,7 @@ import uvicorn
 
 
 def start_app():
-    uvicorn.run(app, port="5050")
+    uvicorn.run(app, port="5050", workers=4)
 
 
 if __name__ == "__main__":
