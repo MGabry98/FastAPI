@@ -127,7 +127,7 @@ async def demo_get_path_id(path_id: str):
     global ipcam
     global new_frames
     # global confirm_change_flag
-    if ipcam == '':
+    if ipcam == '' and camera.isOpened() == False:
         ipcam = path_id
         set_camera(ipcam)
     else:
